@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  aceest:
+    build: .
+    image: aceest:local
+    ports:
+      - "8000:8000"
+    environment:
+      - FLASK_RUN_HOST=0.0.0.0
+      - FLASK_RUN_PORT=8000
+    volumes:
+      - ./:/app:rw
