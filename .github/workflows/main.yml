@@ -31,7 +31,7 @@ jobs:
       - name: Run tests
         run: |
           pip install pytest
-          pytest -q
+          PYTHONPATH=. pytest -q
 
   build-docker:
     runs-on: ubuntu-latest
