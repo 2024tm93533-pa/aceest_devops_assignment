@@ -10,7 +10,7 @@ def create_app(config_object=None):
     if config_object:
         app.config.from_object(config_object)
 
-    db.init_app(app)
+    # db.init_app(app)
 
     # register blueprints
     from .routes.clients import bp as clients_bp
