@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+  environment {
+    IMAGE_NAME = "aceest:jenkins"
+  }
+
   stages {
 
     stage('Checkout') {
@@ -15,11 +19,11 @@ pipeline {
         echo "Running tests inside Python Docker container..."
 
         docker run --rm \
-          -v $(pwd):/app \
+          -v $WORKSPACE:/app \
           -w /app \
           python:3.11 \
           sh -c "
-            pip install --upgrade pip &&
+            python -m pip install --upgrade pip &&
             pip install -r requirements.txt &&
             pytest -q
           "
@@ -27,11 +31,35 @@ pipeline {
       }
     }
 
-    stage('Build Docker') {
+    stage('Build Docker Image') {
       steps {
-        sh 'docker build -t aceest:jenkins .'
+        sh '''
+        echo "Building Docker image..."
+        docker build -t $IMAGE_NAME .
+        '''
       }
     }
 
+    stage('Verify Docker Image') {
+      steps {
+        sh '''
+        echo "Listing Docker images..."
+        docker images | grep aceest || true
+        '''
+      }
+    }
+
+  }
+
+  post {
+    always {
+      echo "Pipeline execution completed."
+    }
+    success {
+      echo "Build & tests passed successfully!"
+    }
+    failure {
+      echo "Pipeline failed. Check logs above."
+    }
   }
 }
