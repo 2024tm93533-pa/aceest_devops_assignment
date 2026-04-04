@@ -12,17 +12,17 @@ pipeline {
     stage('Build & Test') {
       steps {
         sh '''
-        echo "Installing Python..."
-        apt-get update || true
-        apt-get install -y python3 python3-pip python3-venv || true
+        echo "Running tests inside Python Docker container..."
 
-        python3 -m venv venv || true
-        . venv/bin/activate
-
-        pip install --upgrade pip
-        pip install -r requirements.txt
-
-        pytest -q
+        docker run --rm \
+          -v $(pwd):/app \
+          -w /app \
+          python:3.11 \
+          sh -c "
+            pip install --upgrade pip &&
+            pip install -r requirements.txt &&
+            pytest -q
+          "
         '''
       }
     }
