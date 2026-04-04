@@ -7,8 +7,8 @@ pipeline {
         checkout scm
       }
     }
+
     stage('Build & Test') {
-      agent { label 'linux' }
       steps {
         sh 'python3 -m venv venv || true'
         sh '. venv/bin/activate && pip install --upgrade pip'
@@ -16,11 +16,13 @@ pipeline {
         sh '. venv/bin/activate && pytest -q'
       }
     }
+
     stage('Build Docker') {
       steps {
         sh 'docker build -t aceest:jenkins .'
       }
     }
+
     stage('Optional Push') {
       when {
         expression { return env.PUSH_TO_REGISTRY == "true" }
