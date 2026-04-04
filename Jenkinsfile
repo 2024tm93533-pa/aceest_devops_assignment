@@ -1,10 +1,5 @@
 pipeline {
-  agent {
-    docker {
-      image 'python:3.11'
-      args '-u root'   // run as root to avoid permission issues
-    }
-  }
+  agent any
 
   stages {
 
@@ -17,10 +12,16 @@ pipeline {
     stage('Build & Test') {
       steps {
         sh '''
-        python -m venv venv
+        echo "Installing Python..."
+        apt-get update || true
+        apt-get install -y python3 python3-pip python3-venv || true
+
+        python3 -m venv venv || true
         . venv/bin/activate
+
         pip install --upgrade pip
         pip install -r requirements.txt
+
         pytest -q
         '''
       }
