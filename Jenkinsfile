@@ -2,13 +2,13 @@ pipeline {
   agent any
 
   stages {
+
     stage('Checkout') {
       steps {
         checkout scm
       }
     }
 
-    stages {
     stage('Build & Test') {
       steps {
         sh '''
@@ -40,5 +40,6 @@ pipeline {
         }
       }
     }
+
   }
 }
