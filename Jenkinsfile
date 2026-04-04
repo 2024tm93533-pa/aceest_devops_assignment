@@ -14,24 +14,21 @@ pipeline {
     }
 
     stage('Build & Test') {
+      agent {
+        docker {
+          image 'python:3.11'
+        }
+      }
       steps {
         sh '''
-        echo "Checking workspace contents..."
-        ls -la
-        echo "Running tests inside Python Docker container..."
+      echo "Running tests inside Docker agent..."
 
-        docker run --rm \
-          -v $WORKSPACE:/app \
-          -w /app \
-          python:3.11 \
-          sh -c "
-            echo 'Inside container:' &&
-            ls -la &&
-            python -m pip install --upgrade pip &&
-            pip install -r requirements.txt &&
-            pytest -q
-          "
-        '''
+      ls -la
+
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+      pytest -q
+      '''
       }
     }
 
