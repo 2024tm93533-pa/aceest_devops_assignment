@@ -21,14 +21,17 @@ pipeline {
       }
       steps {
         sh '''
-      echo "Running tests inside Docker agent..."
+        echo "Setting up virtual environment..."
 
-      ls -la
+        python3 -m venv venv
+        . venv/bin/activate
 
-      python -m pip install --upgrade pip
-      pip install -r requirements.txt
-      pytest -q
-      '''
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+        echo "Running tests..."
+        pytest
+        '''
       }
     }
 
