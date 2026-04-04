@@ -9,11 +9,16 @@ pipeline {
     }
 
     stage('Build & Test') {
+      agent {
+        docker {
+          image 'python:3.11'
+          args '-u root:root'
+        }
+      }
       steps {
-        sh 'python3 -m venv venv || true'
-        sh '. venv/bin/activate && pip install --upgrade pip'
-        sh '. venv/bin/activate && pip install -r requirements.txt'
-        sh '. venv/bin/activate && pytest -q'
+        sh 'python -m pip install --upgrade pip'
+        sh 'pip install -r requirements.txt'
+        sh 'pytest -q'
       }
     }
 
