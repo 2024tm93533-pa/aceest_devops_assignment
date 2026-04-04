@@ -29,6 +29,9 @@ pipeline {
         pip install --upgrade pip
         pip install -r requirements.txt
 
+        echo "Fixing Python path..."
+        export PYTHONPATH=$PYTHONPATH:$(pwd)
+
         echo "Running tests..."
         pytest
         '''
