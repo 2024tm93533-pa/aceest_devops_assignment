@@ -14,11 +14,6 @@ pipeline {
     }
 
     stage('Build & Test') {
-      agent {
-        docker {
-          image 'python:3.11'
-        }
-      }
       steps {
         sh '''
         echo "Setting up virtual environment..."
@@ -28,12 +23,13 @@ pipeline {
 
         pip install --upgrade pip
         pip install -r requirements.txt
+        pip install pytest
 
         echo "Fixing Python path..."
-        export PYTHONPATH=$PYTHONPATH:$(pwd)
+        export PYTHONPATH=$(pwd)
 
         echo "Running tests..."
-        pytest
+        pytest -v
         '''
       }
     }
