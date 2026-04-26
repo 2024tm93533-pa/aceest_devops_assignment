@@ -4,6 +4,7 @@ pipeline {
   environment {
     IMAGE_NAME = "aceest:jenkins"
     DOCKER_PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    KUBECONFIG = "$HOME/.kube/config"
   }
 
   stages {
@@ -34,16 +35,15 @@ pipeline {
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Build Docker Image (Minikube)') {
       steps {
         sh '''
-        echo "Fixing PATH for Docker..."
+        echo "Setting Docker to Minikube environment..."
+
         export PATH=$DOCKER_PATH:$PATH
+        eval $(minikube docker-env)
 
-        echo "Checking Docker..."
-        docker --version
-
-        echo "Building Docker image..."
+        echo "Building Docker image inside Minikube..."
         docker build -t $IMAGE_NAME .
         '''
       }
@@ -53,9 +53,27 @@ pipeline {
       steps {
         sh '''
         export PATH=$DOCKER_PATH:$PATH
+        eval $(minikube docker-env)
 
         echo "Listing Docker images..."
         docker images | grep aceest || true
+        '''
+      }
+    }
+
+    stage('Deploy to Kubernetes') {
+      steps {
+        sh '''
+        echo "Deploying to Kubernetes..."
+
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
+
+        echo "Restarting deployment..."
+        kubectl rollout restart deployment aceest-deployment
+
+        echo "Waiting for rollout..."
+        kubectl rollout status deployment aceest-deployment
         '''
       }
     }
@@ -67,7 +85,7 @@ pipeline {
       echo "Pipeline execution completed."
     }
     success {
-      echo "Build & tests passed successfully!"
+      echo "CI/CD pipeline executed successfully 🚀"
     }
     failure {
       echo "Pipeline failed. Check logs above."

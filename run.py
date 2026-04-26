@@ -4,6 +4,11 @@ from app.models import db
 
 app = create_app()
 
+# Root route (fix for "Not Found")
+@app.route("/")
+def home():
+    return {"message": "ACEest Fitness API is running 🚀"}
+
 # Helper to create DB tables quickly (for local dev)
 @app.cli.command("init-db")
 def init_db():
