@@ -3,6 +3,7 @@ pipeline {
 
   environment {
     IMAGE_NAME = "aceest:jenkins"
+    DOCKER_PATH = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
   }
 
   stages {
@@ -23,7 +24,6 @@ pipeline {
 
         pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest
 
         echo "Fixing Python path..."
         export PYTHONPATH=$(pwd)
@@ -37,6 +37,12 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         sh '''
+        echo "Fixing PATH for Docker..."
+        export PATH=$DOCKER_PATH:$PATH
+
+        echo "Checking Docker..."
+        docker --version
+
         echo "Building Docker image..."
         docker build -t $IMAGE_NAME .
         '''
@@ -46,6 +52,8 @@ pipeline {
     stage('Verify Docker Image') {
       steps {
         sh '''
+        export PATH=$DOCKER_PATH:$PATH
+
         echo "Listing Docker images..."
         docker images | grep aceest || true
         '''

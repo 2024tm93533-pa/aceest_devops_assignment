@@ -1,10 +1,11 @@
-# Stage 1: base
-FROM python:3.11-slim AS base
+FROM python:3.11-slim
+
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# system deps for matplotlib (minimal)
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libfreetype6-dev \
@@ -12,11 +13,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Python dependencies first (better caching)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app
-COPY . /app
+# Copy application
+COPY . .
 
-# Use gunicorn in production; default command runs gunicorn
+# Expose port
+EXPOSE 8000
+
+# Run app
 CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "run:app"]
